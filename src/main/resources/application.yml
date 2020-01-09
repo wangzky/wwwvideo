@@ -1,0 +1,56 @@
+server:
+  port: 9988
+spring:
+  profiles:
+    active: cloud
+  freemarker:
+    allow-request-override: false
+    allow-session-override: false
+    cache: false
+    charset: UTF-8
+    check-template-location: true
+    content-type: text/html
+    enabled: true
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: true
+    prefer-file-system-access: true
+    suffix: .ftl
+    template-loader-path: classpath:/templates/
+
+
+## 开发
+---
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/www?useUnicode=true&&characterEncoding=UTF-8&connectTimeout=1000&autoReconnect=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1230
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+    show-sql: true
+  mvc:
+    static-path-pattern: /static/**
+
+## 云
+---
+spring:
+  profiles: cloud
+  datasource:
+    url: jdbc:mysql://34.92.12.76:3306/www?useUnicode=true&&characterEncoding=UTF-8&connectTimeout=1000&autoReconnect=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: wangzk
+    password: 1230
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+    show-sql: true
+  mvc:
+    static-path-pattern: /static/**
