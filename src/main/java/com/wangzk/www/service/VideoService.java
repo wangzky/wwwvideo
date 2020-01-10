@@ -1,17 +1,18 @@
 package com.wangzk.www.service;
 
-import com.wangzk.www.bean.LayResp;
-import com.wangzk.www.bean.Resp;
-import com.wangzk.www.bean.VideoItem;
+import com.wangzk.www.bean.*;
 import com.wangzk.www.dao.VideoItemRepository;
+import com.wangzk.www.util.JdbcUtil;
 import com.wangzk.www.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 /**
  * PackageName: com.wangzk.www.service
@@ -28,13 +29,36 @@ public class VideoService {
     @Autowired
     VideoItemRepository videoItemRepository;
 
+    @Autowired
+    JdbcUtil jdbcUtil;
+
     public List<VideoItem> getVideoItemList(){
         return videoItemRepository.getVideoItemList();
     }
 
-    public LayResp getVideoItemListForLay(){
-        List<VideoItem> videoItemList = videoItemRepository.getVideoItemList();
-        return new LayResp(0 , "请求成功" ,videoItemList.size() ,videoItemList);
+    public LayResp getVideoItemListForLay(VideoListQry input){
+        Integer page = input.getPage();
+        Integer limit = input.getLimit();
+
+        String videoType = input.getVideoType();
+
+        String sql = "select * from video where 1=1  ";
+        String countSql = "select count(*) from video where 1=1 ";
+
+        if (! StringUtils.isEmpty(videoType)){
+            String s = " and video_type = " + videoType + " ";
+            sql += s;
+            countSql += s;
+        }
+        PageBean pageDto = jdbcUtil.getCustomerPageDto(
+                sql,
+                new Object[]{},
+                countSql,
+                new Object[]{},
+                page,
+                limit);
+
+        return new LayResp(0 , "请求成功" ,pageDto.getTotalSize() ,pageDto.getContent());
     }
 
     public VideoItem getVideoItemById(String videoId){
@@ -68,5 +92,33 @@ public class VideoService {
             e.printStackTrace();
             return new Resp("9999" , "录入失败"  , e.getMessage());
         }
+    }
+
+
+    public Resp updateVideoInfo(Map input){
+        log.info("修改数据[{}]" , input.toString());
+        String videoId = (String) input.get("video_id");
+        String field = (String) input.get("field");
+        String value = (String) input.get("value");
+
+        if (StringUtils.isEmpty(videoId) || StringUtils.isEmpty(field) || StringUtils.isEmpty(value)){
+            return new Resp("9999" , "数据不完整");
+        }
+
+        String sql = "update video set " + field + " = '" + value +"' where video_id = '"+ videoId + "';" ;
+        jdbcUtil.jdbcUpdate(sql);
+
+        return new Resp();
+
+    }
+
+    public Resp delVideo(String videoId){
+        if (StringUtils.isEmpty(videoId)){
+            return new Resp("9999" , "id为空");
+        }
+
+        videoItemRepository.deleteById(videoId);
+
+        return new Resp();
     }
 }

@@ -17,8 +17,10 @@ import java.util.List;
  */
 @Repository
 public interface VideoItemRepository extends JpaRepository<VideoItem , String> {
+
+    /*首页展示 列表 只展示 公开的视频*/
     @Query(nativeQuery = true,
-    value = "select * from video order by video_time desc ")
+    value = "select * from video where 1=1 and video_type = '3' order by video_time desc ")
     List<VideoItem> getVideoItemList();
 
     VideoItem getByVideoId(String videoId);

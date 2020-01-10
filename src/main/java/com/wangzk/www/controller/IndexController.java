@@ -9,6 +9,8 @@ import com.aliyun.oss.model.PolicyConditions;
 import com.wangzk.www.bean.LayResp;
 import com.wangzk.www.bean.Resp;
 import com.wangzk.www.bean.VideoItem;
+import com.wangzk.www.bean.VideoListQry;
+import com.wangzk.www.service.SysParamService;
 import com.wangzk.www.service.VideoService;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jettison.json.JSONObject;
@@ -41,6 +43,9 @@ public class IndexController {
     @Autowired
     VideoService videoService;
 
+    @Autowired
+    SysParamService sysParamService;
+
     @RequestMapping("/")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("index");
@@ -48,8 +53,8 @@ public class IndexController {
         return modelAndView;
     }
 
-    @RequestMapping("/videoInfo")
-    public ModelAndView videoPage(@RequestParam(value = "videoId") String videoId){
+    @RequestMapping("/videoInfo/{videoId}")
+    public ModelAndView videoPage(@PathVariable(value = "videoId") String videoId){
         ModelAndView modelAndView = new ModelAndView("videoInfo");
         modelAndView.addObject("videoInfo",videoService.getVideoItemById(videoId));
         return modelAndView;
@@ -58,6 +63,7 @@ public class IndexController {
     @RequestMapping("/videoListAdmin")
     public ModelAndView videoListAdmin(){
         ModelAndView modelAndView = new ModelAndView("admin/videoListAdmin");
+        modelAndView.addObject("videoTypeList" , sysParamService.getParamListByCode("video_type").getData());
         return modelAndView;
     }
 
@@ -67,10 +73,26 @@ public class IndexController {
         return videoService.addVideoItem(videoItem);
     }
 
+    @PostMapping("/updateVideoInfo")
+    @ResponseBody
+    public Resp updateVideoInfo(@RequestBody Map input){
+        return videoService.updateVideoInfo(input);
+    }
+
+
+
     @PostMapping("/getVideoItemList")
     @ResponseBody
-    public LayResp getVideoItemList(){
-        return videoService.getVideoItemListForLay();
+    public LayResp getVideoItemList(@RequestBody VideoListQry input){
+        log.info("视频列表请求参数==>"+input.toString());
+        return videoService.getVideoItemListForLay(input);
+    }
+
+    @GetMapping("/admin/del/{videoId}")
+    @ResponseBody
+    public Resp delVideoItem(@PathVariable(value = "videoId") String videoId){
+        log.info("视频删除==>"+videoId);
+        return videoService.delVideo(videoId);
     }
 
     @GetMapping("/getPolicy")

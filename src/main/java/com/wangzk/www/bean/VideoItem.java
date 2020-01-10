@@ -37,4 +37,7 @@ public class VideoItem {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Column(name = "video_time")
     private Date videoTime;
+
+    @Column(name = "video_type",length = 10)
+    private String videoType;
 }
