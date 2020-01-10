@@ -12,6 +12,7 @@ import com.wangzk.www.bean.VideoItem;
 import com.wangzk.www.bean.VideoListQry;
 import com.wangzk.www.service.SysParamService;
 import com.wangzk.www.service.VideoService;
+import com.wangzk.www.util.Base64Util;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,8 @@ import java.util.*;
 public class IndexController {
 
     static String endpoint = "https://wangzk-ali-bj.oss-accelerate.aliyuncs.com";
-    static String accessKeyId = "LTAI4FxcGsNiz4mNZKLGta7L";
-    static String accessKeySecret = "UtQjFuVDQHgiREaeKlAmuyomFfeNYs";
-    static String bucketName = "wangzk-ali-bj";
-    static String objectName = "<yourObjectName>";
+    static String accessKeyId = "TFRBSTRGeGNHc05pejRtTlpLTEd0YTdM";
+    static String accessKeySecret = "VXRRakZ1VkRRSGdpUkVhZUtsQW11eW9tRmZlTllz";
 
     @Autowired
     VideoService videoService;
@@ -119,7 +118,7 @@ public class IndexController {
     }
 
     public Map getOSSSignature(){
-        OSS client = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        OSS client = new OSSClientBuilder().build(endpoint, Base64Util.decoderBase64(accessKeyId), Base64Util.decoderBase64(accessKeySecret));
 
         try {
             long expireTime = 30;
@@ -138,7 +137,7 @@ public class IndexController {
             log.info("===================");
             log.info(postSignature);
             Map myData = new HashMap();
-            myData.put("accessid",accessKeyId);
+            myData.put("accessid", Base64Util.decoderBase64(accessKeyId));
             myData.put("host",endpoint);
             myData.put("policy",encodedPolicy);
             myData.put("signature",postSignature);
